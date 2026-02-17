@@ -3,19 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Memfoto109</title>
+    <title>Memoria_Visual109</title>
 
-    <meta property="og:title" content="Memfoto109 - Memoria Fotográfica">
-    <meta property="og:description" content="¿Qué tan buena es tu memoria fotográfica? Encuentra la ubicación de la imagen.">
-    <meta property="og:image" content="https://ginagomezlemus.github.io/Memfoto109/miniatura.jpg">
-    <meta property="og:url" content="https://ginagomezlemus.github.io/Memfoto109/">
+    <meta property="og:title" content="Memoria_Visual109 - Memoria Visual">
+    <meta property="og:description" content="¿Qué tan buena es tu memoria visual? Encuentra la ubicación de la imagen.">
+    <meta property="og:image" content="https://ginadiazlemus.github.io/Memoria_Visual109/miniatura.jpg">
+    <meta property="og:url" content="https://ginadiazlemus.github.io/Memoria_Visual109/">
     <meta property="og:type" content="website">
 
     <style>
         :root {
             --color-fondo-app: #FFFFFF;
             --fuente-global: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            --color-primario: #E60000; /* Rojo Leonidas Name */
+            --color-primario: #E60000;
         }
 
         body, html { 
@@ -86,10 +86,7 @@
             box-sizing: border-box;
         }
         .celda img { width: 100%; height: 100%; object-fit: cover; }
-        .celda .texto-ocho { 
-            font-weight: 900; color: var(--color-primario); 
-            font-size: 0.75rem; text-align: center;
-        }
+        .celda .texto-ocho { font-weight: 900; color: var(--color-primario); font-size: 0.75rem; text-align: center; }
         .celda.oculta { background: var(--color-primario); }
         .celda.oculta::after { content: "?"; font-size: 2rem; color: white; font-weight: bold; }
         .celda.oculta > * { display: none; }
@@ -167,7 +164,7 @@
     </div>
 
     <div id="modal-reglas">
-        <h2>🧩 MEMFOTO109</h2>
+        <h2>🧩 Memoria_Visual109</h2>
         <ul>
             <li>Tienes <b>5 segundos</b> para memorizar dónde están las imágenes.</li>
             <li>Luego, se ocultarán y aparecerá un <b>objetivo</b>.</li>
@@ -178,11 +175,11 @@
     </div>
 
     <div id="pantalla-carga" class="pantalla">
-        <p class="texto-carga-inferior">CARGANDO MEMFOTO109...</p>
+        <p class="texto-carga-inferior">CARGANDO MEMORIA_VISUAL109...</p>
     </div>
 
     <div id="pantalla-menu" class="pantalla" style="display: none;">
-        <div class="cabecera-titulo"><h1 class="texto-sombra">Memfoto109</h1></div>
+        <div class="cabecera-titulo"><h1 class="texto-sombra">Memoria_Visual109</h1></div>
         <div style="flex: 1;"></div>
         <div class="footer-controles">
             <div style="color: #444; margin-bottom: 10px; font-weight: bold;">Mejor Racha: <span id="record-menu">0</span></div>
@@ -193,7 +190,7 @@
     </div>
 
     <div id="pantalla-juego" class="pantalla" style="display: none;">
-        <div class="cabecera-titulo"><h1 class="texto-sombra">Memfoto109</h1></div>
+        <div class="cabecera-titulo"><h1 class="texto-sombra">Memoria_Visual109</h1></div>
         <div class="stats-juego">
             <div>Racha: <span id="racha-actual">0</span></div>
             <div>Récord: <span id="record-juego">0</span></div>
@@ -228,7 +225,7 @@
         function iniciarMusica() { if (!musicaIniciada) { document.getElementById('musicaFondo').play().catch(() => {}); musicaIniciada = true; } }
 
         window.onload = () => {
-            const record = localStorage.getItem('recordMemfoto109') || 0;
+            const record = localStorage.getItem('recordMemoriaVisual109') || 0;
             document.getElementById('record-menu').innerText = record;
         };
 
@@ -252,7 +249,7 @@
         }
 
         function actualizarStats() {
-            const record = localStorage.getItem('recordMemfoto109') || 0;
+            const record = localStorage.getItem('recordMemoriaVisual109') || 0;
             document.getElementById('racha-actual').innerText = racha;
             document.getElementById('record-juego').innerText = record;
         }
@@ -317,8 +314,8 @@
             celda.classList.remove('oculta');
             if (celda.dataset.valor === itemCorrecto) {
                 racha++;
-                const recordActual = localStorage.getItem('recordMemfoto109') || 0;
-                if (racha > recordActual) { localStorage.setItem('recordMemfoto109', racha); }
+                const recordActual = localStorage.getItem('recordMemoriaVisual109') || 0;
+                if (racha > recordActual) { localStorage.setItem('recordMemoriaVisual109', racha); }
                 actualizarStats();
                 setTimeout(() => { document.getElementById('mensaje-victoria').style.display = 'block'; }, 500);
             } else {
@@ -329,9 +326,14 @@
         }
 
         function compartirJuego() {
-            const url = "https://ginagomezlemus.github.io/Memfoto109/";
+            // Link actualizado con el nuevo dominio ginadiazlemus
+            const url = "https://ginadiazlemus.github.io/Memoria_Visual109/";
             if (navigator.share) {
-                navigator.share({ title: 'Memfoto109', text: '¿Qué tan buena es tu memoria fotográfica?', url: url }).catch(() => {});
+                navigator.share({ 
+                    title: 'Memoria_Visual109', 
+                    text: '¡Pon a prueba tu memoria visual con este juego!', 
+                    url: url 
+                }).catch(() => {});
             } else {
                 navigator.clipboard.writeText(url); alert("¡Enlace copiado!");
             }
