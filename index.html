@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Memfoto109</title>
+
+    <meta property="og:title" content="Memfoto109 - Memoria Fotográfica">
+    <meta property="og:description" content="¿Qué tan buena es tu memoria fotográfica? Encuentra la ubicación de la imagen.">
+    <meta property="og:image" content="https://ginagomezlemus.github.io/Memfoto109/miniatura.jpg">
+    <meta property="og:url" content="https://ginagomezlemus.github.io/Memfoto109/">
+    <meta property="og:type" content="website">
+
+    <style>
+        :root {
+            --color-fondo-app: #FFFFFF;
+            --fuente-global: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --color-primario: #E60000; /* Rojo Leonidas Name */
+        }
+
+        body, html { 
+            margin: 0; padding: 0; height: 100dvh; width: 100%; 
+            overflow: hidden; font-family: var(--fuente-global); 
+            background-color: var(--color-fondo-app); 
+        }
+
+        .pantalla { 
+            width: 100%; height: 100dvh; display: flex; 
+            flex-direction: column; align-items: center; position: absolute;
+            background-color: white; box-sizing: border-box;
+            background-size: contain; background-position: center; background-repeat: no-repeat;
+        }
+
+        #pantalla-carga { background-image: url('fondo.jpeg'); justify-content: flex-start; }
+        #pantalla-menu { background-image: url('fondo 2.jpeg'); }
+
+        .texto-carga-inferior {
+            font-size: 1.1rem; font-weight: bold; color: var(--color-primario);
+            text-shadow: 1px 1px 4px rgba(255,255,255,0.8);
+            animation: blink 1.5s infinite;
+            position: absolute; top: 66.6%; transform: translateY(-50%);
+        }
+        @keyframes blink { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+        .cabecera-titulo {
+            width: 100%; background-color: var(--color-primario);
+            padding: env(safe-area-inset-top, 10px) 0 10px 0; 
+            text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 10;
+        }
+
+        .texto-sombra { font-weight: 800; color: white; margin: 0; font-size: 1.8rem; }
+
+        .overlay { 
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.8); z-index: 9999; 
+        }
+
+        #modal-reglas {
+            display: none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); background: white; 
+            width: 85%; max-width: 340px; border-radius: 25px; 
+            padding: 25px; z-index: 10000; text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 5px solid var(--color-primario);
+        }
+        #modal-reglas h2 { color: var(--color-primario); margin-top: 0; }
+        #modal-reglas ul { text-align: left; font-size: 0.95rem; line-height: 1.5; color: #333; }
+
+        .stats-juego {
+            display: flex; justify-content: space-around; width: 92%;
+            color: var(--color-primario); font-weight: bold; margin: 5px 0; font-size: 0.9rem;
+            background: rgba(230, 0, 0, 0.05); padding: 8px; border-radius: 12px;
+        }
+
+        #tablero-memfoto {
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 10px; width: 92%; max-width: 400px; margin: 10px auto;
+        }
+
+        .celda {
+            aspect-ratio: 1 / 1; background: white; border-radius: 12px;
+            position: relative; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 3px solid var(--color-primario);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+        .celda img { width: 100%; height: 100%; object-fit: cover; }
+        .celda .texto-ocho { 
+            font-weight: 900; color: var(--color-primario); 
+            font-size: 0.75rem; text-align: center;
+        }
+        .celda.oculta { background: var(--color-primario); }
+        .celda.oculta::after { content: "?"; font-size: 2rem; color: white; font-weight: bold; }
+        .celda.oculta > * { display: none; }
+
+        #objetivo-contenedor {
+            width: 100%; height: 150px; display: flex;
+            flex-direction: column; align-items: center;
+            justify-content: center; margin: 5px 0;
+        }
+
+        #texto-pregunta { color: #333; font-size: 1rem; font-weight: bold; visibility: hidden; margin: 0 0 5px 0; }
+
+        .item-objetivo {
+            width: 100px; height: 100px; background: white; border: 4px solid var(--color-primario); 
+            border-radius: 15px; display: flex; align-items: center; 
+            justify-content: center; overflow: hidden; visibility: hidden;
+        }
+        .item-objetivo img { width: 100%; height: 100%; object-fit: cover; }
+        .item-objetivo span { color: var(--color-primario); font-weight: 900; font-size: 1rem; text-align: center; }
+
+        #indicador-fase {
+            background: var(--color-primario); color: white; padding: 4px 15px;
+            border-radius: 20px; font-weight: bold; font-size: 0.8rem; margin-top: 5px;
+        }
+
+        .footer-controles {
+            width: 100%; display: flex; flex-direction: column; align-items: center;
+            background-color: white; padding-top: 10px; z-index: 20; margin-top: auto;
+        }
+
+        .banner-politico {
+            width: 100%; height: 75px; 
+            background-image: url('banner.jpeg'); background-size: contain; 
+            background-position: center bottom; background-repeat: no-repeat;
+            background-color: white; margin-bottom: env(safe-area-inset-bottom);
+        }
+
+        button { 
+            width: 85%; max-width: 300px; padding: 12px; margin: 4px 0; 
+            background-color: var(--color-primario); color: white; 
+            font-size: 0.9rem; font-weight: 700; border: none; 
+            border-radius: 12px; text-transform: uppercase;
+            box-shadow: 0 4px 0px #990000;
+        }
+        button:active { transform: translateY(2px); box-shadow: 0 2px 0px #990000; }
+
+        .enlace-web { color: var(--color-primario); text-decoration: none; font-weight: bold; font-size: 0.8rem; margin: 5px 0; }
+
+        #mensaje-victoria, #mensaje-error {
+            display: none; position: fixed; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); background: white; 
+            border: 5px solid var(--color-primario); padding: 25px; 
+            border-radius: 20px; z-index: 11000; text-align: center; 
+            width: 80%; max-width: 320px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body onclick="iniciarMusica()">
+
+    <audio id="musicaFondo" loop><source src="Version 2 Final.mp3" type="audio/mpeg"></audio>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div id="mensaje-victoria">
+        <h2>✨ ¡ACERTASTE! ✨</h2>
+        <p style="font-weight: bold; color: #333;">Juego completado, Hablar nos cura</p>
+        <p style="color: var(--color-primario); font-size: 0.9rem;">Recuerda el próximo 8 de marzo votar por Nuestra Fuerza #109</p>
+        <button onclick="nuevaRonda()">SIGUIENTE</button>
+    </div>
+
+    <div id="mensaje-error">
+        <h2 style="color: var(--color-primario);">¡INTÉNTALO DE NUEVO!</h2>
+        <p>La racha ha vuelto a cero.</p>
+        <button onclick="nuevaRonda()">REINTENTAR</button>
+    </div>
+
+    <div id="modal-reglas">
+        <h2>🧩 MEMFOTO109</h2>
+        <ul>
+            <li>Tienes <b>5 segundos</b> para memorizar dónde están las imágenes.</li>
+            <li>Luego, se ocultarán y aparecerá un <b>objetivo</b>.</li>
+            <li>Toca la casilla donde estaba esa imagen.</li>
+            <li>¡Si fallas, la racha vuelve a cero!</li>
+        </ul>
+        <button onclick="cerrarReglas()">¡EMPEZAR!</button>
+    </div>
+
+    <div id="pantalla-carga" class="pantalla">
+        <p class="texto-carga-inferior">CARGANDO MEMFOTO109...</p>
+    </div>
+
+    <div id="pantalla-menu" class="pantalla" style="display: none;">
+        <div class="cabecera-titulo"><h1 class="texto-sombra">Memfoto109</h1></div>
+        <div style="flex: 1;"></div>
+        <div class="footer-controles">
+            <div style="color: #444; margin-bottom: 10px; font-weight: bold;">Mejor Racha: <span id="record-menu">0</span></div>
+            <button onclick="mostrarReglas()">Iniciar Juego</button>
+            <a href="https://www.hablarnoscura.com" target="_blank" class="enlace-web">www.hablarnoscura.com</a>
+            <div class="banner-politico"></div>
+        </div>
+    </div>
+
+    <div id="pantalla-juego" class="pantalla" style="display: none;">
+        <div class="cabecera-titulo"><h1 class="texto-sombra">Memfoto109</h1></div>
+        <div class="stats-juego">
+            <div>Racha: <span id="racha-actual">0</span></div>
+            <div>Récord: <span id="record-juego">0</span></div>
+        </div>
+        <div id="indicador-fase">MEMORIZA 5s</div>
+        <div id="tablero-memfoto"></div>
+
+        <div id="objetivo-contenedor">
+            <p id="texto-pregunta">¿DÓNDE ESTABA ESTO?</p>
+            <div id="item-objetivo" class="item-objetivo"></div>
+        </div>
+
+        <div class="footer-controles">
+            <div style="display:flex; gap:8px; width:85%; justify-content:center;">
+                <button onclick="location.reload()" style="width:48%; font-size: 0.8rem;">Menú</button>
+                <button onclick="nuevaRonda()" style="width:48%; font-size: 0.8rem;">Reiniciar</button>
+            </div>
+            <button onclick="compartirJuego()" style="width:85%; font-size: 0.8rem;">COMPARTIR JUEGO</button>
+            <a href="https://www.hablarnoscura.com" target="_blank" class="enlace-web">www.hablarnoscura.com</a>
+            <div class="banner-politico"></div>
+        </div>
+    </div>
+
+    <script>
+        const imagenes = ['pareja1.jpg', 'pareja2.jpg', 'pareja3.jpg', 'pareja4.jpg', 'pareja5.jpg', 'pareja6.jpg', 'pareja7.jpg'];
+        let itemCorrecto = "";
+        let juegoBloqueado = true;
+        let musicaIniciada = false;
+        let racha = 0;
+        let intervaloCrono;
+
+        function iniciarMusica() { if (!musicaIniciada) { document.getElementById('musicaFondo').play().catch(() => {}); musicaIniciada = true; } }
+
+        window.onload = () => {
+            const record = localStorage.getItem('recordMemfoto109') || 0;
+            document.getElementById('record-menu').innerText = record;
+        };
+
+        function mostrarReglas() {
+            document.getElementById('modal-reglas').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        }
+
+        function cerrarReglas() {
+            document.getElementById('modal-reglas').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+            iniciarJuego();
+        }
+
+        function iniciarJuego() {
+            document.getElementById('pantalla-menu').style.display = 'none';
+            document.getElementById('pantalla-juego').style.display = 'flex';
+            racha = 0;
+            actualizarStats();
+            nuevaRonda();
+        }
+
+        function actualizarStats() {
+            const record = localStorage.getItem('recordMemfoto109') || 0;
+            document.getElementById('racha-actual').innerText = racha;
+            document.getElementById('record-juego').innerText = record;
+        }
+
+        function nuevaRonda() {
+            clearInterval(intervaloCrono);
+            document.getElementById('mensaje-victoria').style.display = 'none';
+            document.getElementById('mensaje-error').style.display = 'none';
+            document.getElementById('item-objetivo').style.visibility = 'hidden';
+            document.getElementById('texto-pregunta').style.visibility = 'hidden';
+            
+            let tiempoRestante = 5;
+            const indicador = document.getElementById('indicador-fase');
+            indicador.innerText = `MEMORIZA ${tiempoRestante}s`;
+            juegoBloqueado = true;
+
+            let mazo = imagenes.map(img => ({ tipo: 'img', valor: img }));
+            mazo.push({ tipo: 'txt', valor: '8 DE MARZO' });
+            mazo.sort(() => Math.random() - 0.5);
+
+            const tablero = document.getElementById('tablero-memfoto');
+            tablero.innerHTML = '';
+
+            mazo.forEach((item) => {
+                const celda = document.createElement('div');
+                celda.className = 'celda';
+                celda.dataset.valor = item.valor;
+                if(item.tipo === 'img') { celda.innerHTML = `<img src="${item.valor}">`; } 
+                else { celda.innerHTML = `<div class="texto-ocho">8 DE<br>MARZO</div>`; }
+                celda.onclick = () => verificarRespuesta(celda);
+                tablero.appendChild(celda);
+            });
+
+            const objetivo = mazo[Math.floor(Math.random() * mazo.length)];
+            itemCorrecto = objetivo.valor;
+
+            intervaloCrono = setInterval(() => {
+                tiempoRestante--;
+                if (tiempoRestante > 0) {
+                    indicador.innerText = `MEMORIZA ${tiempoRestante}s`;
+                } else {
+                    clearInterval(intervaloCrono);
+                    finalizarMemorizacion(objetivo);
+                }
+            }, 1000);
+        }
+
+        function finalizarMemorizacion(objetivo) {
+            document.querySelectorAll('.celda').forEach(c => c.classList.add('oculta'));
+            document.getElementById('indicador-fase').innerText = "¡ENCUÉNTRALO!";
+            const objContainer = document.getElementById('item-objetivo');
+            if(objetivo.tipo === 'img') { objContainer.innerHTML = `<img src="${objetivo.valor}">`; } 
+            else { objContainer.innerHTML = `<span>8 DE MARZO</span>`; }
+            objContainer.style.visibility = 'visible';
+            document.getElementById('texto-pregunta').style.visibility = 'visible';
+            juegoBloqueado = false;
+        }
+
+        function verificarRespuesta(celda) {
+            if (juegoBloqueado) return;
+            juegoBloqueado = true;
+            celda.classList.remove('oculta');
+            if (celda.dataset.valor === itemCorrecto) {
+                racha++;
+                const recordActual = localStorage.getItem('recordMemfoto109') || 0;
+                if (racha > recordActual) { localStorage.setItem('recordMemfoto109', racha); }
+                actualizarStats();
+                setTimeout(() => { document.getElementById('mensaje-victoria').style.display = 'block'; }, 500);
+            } else {
+                racha = 0;
+                actualizarStats();
+                setTimeout(() => { document.getElementById('mensaje-error').style.display = 'block'; }, 500);
+            }
+        }
+
+        function compartirJuego() {
+            const url = "https://ginagomezlemus.github.io/Memfoto109/";
+            if (navigator.share) {
+                navigator.share({ title: 'Memfoto109', text: '¿Qué tan buena es tu memoria fotográfica?', url: url }).catch(() => {});
+            } else {
+                navigator.clipboard.writeText(url); alert("¡Enlace copiado!");
+            }
+        }
+
+        setTimeout(() => {
+            document.getElementById('pantalla-carga').style.display = 'none';
+            document.getElementById('pantalla-menu').style.display = 'flex';
+        }, 3000);
+    </script>
+</body>
+</html>
